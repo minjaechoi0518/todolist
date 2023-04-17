@@ -1,70 +1,186 @@
-# Getting Started with Create React App
+1. 프로젝트 명 : TodoList
+React 훅 useState와 props, jsx를 이용해서 간단히 만들어보는 TodoList입니다.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+2. 배포 
+https://todolist-beta-one.vercel.app/
 
-## Available Scripts
 
-In the project directory, you can run:
+3. 코드 리뷰.
 
-### `yarn start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+우선, useState 훅을 사용하여 상태값을 관리합니다. content는 현재 할 일 목록을 나타내며, title과 todo는 새로운 할 일을 추가할 때 제목과 내용을 입력받습니다.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+contentChangeHandler 함수는 title 또는 todo의 값을 변경할 때마다 호출되어 해당 값을 업데이트합니다.
 
-### `yarn test`
+buttonForAdd 함수는 새로운 할 일을 추가하는 함수입니다. title과 todo의 값이 모두 입력되어 있을 때만 새로운 할 일을 추가할 수 있습니다.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+buttonForRemove 함수는 선택한 할 일을 삭제하는 함수입니다.
 
-### `yarn build`
+buttonForComplete 함수는 선택한 할 일을 완료 처리하는 함수입니다. 선택한 할 일의 isDone 속성값을 true로 변경합니다.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+buttonForCancel 함수는 완료된 할 일을 취소 처리하는 함수입니다. 선택한 할 일의 isDone 속성값을 false로 변경합니다.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+마지막으로, render() 메서드에서는 입력 폼과 현재 할 일 목록을 나타내는 두 개의 리스트를 렌더링합니다. filter() 함수를 사용하여 isDone 값이 false인 할 일 목록과 true인 완료된 할 일 목록을 나누어 렌더링합니다.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+이 코드는 사용자가 입력한 제목과 내용을 기반으로 할 일 목록을 관리하는데 사용됩니다. 사용자는 새로운 할 일을 추가하고, 완료된 할 일을 확인하고, 필요에 따라 할 일을 삭제하거나 취소 처리할 수 있습니다. 코드에서 사용된 useState 훅, filter() 함수 등은 React에서 자주 사용되는 함수이므로 React를 배우는 초보자들에게 유용할 것입니다.
 
-### `yarn eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+4. 원본코드. 
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+import React, { useState } from "react";
+import "./App.css";
 
-## Learn More
+const App = () => {
+  const [content, setContent] = useState([
+    {
+      id: 1,
+      title: "Write Down Your Todo",
+      todo: "오늘해야할일1",
+      isDone: false,
+    },
+  ]);
+  const [title, setTitle] = useState("");
+  const [todo, setTodo] = useState("");
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  const contentChangeHandler = (e) => {
+    if (e.target.name === "title") {
+      setTitle(e.target.value);
+    } else {
+      setTodo(e.target.value);
+    }
+  };
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  const buttonForAdd = () => {
+    if (title.length > 0 && todo.length > 0) {
+      const newContent = {
+        id: content.length + 1,
+        title: title,
+        todo: todo,
+        isDone: false,
+      };
+      setContent([...content, newContent]);
+      setTitle("");
+      setTodo("");
+    }
+  };
 
-### Code Splitting
+  const buttonForRemove = (id) => {
+    const newContent = content.filter((content) => content.id !== id);
+    setContent(newContent);
+  };
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+  const buttonForComplete = (id) => {
+    setContent(
+      content.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            isDone: true,
+          };
+        }
+        return item;
+      })
+    );
+  };
 
-### Analyzing the Bundle Size
+  const buttonForCancel = (id) => {
+    setContent(
+      content.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            isDone: false,
+          };
+        }
+        return item;
+      })
+    );
+  };
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+  return (
+    <div className="App">
+      <div className="head clearfix">
+        <h1>My Todo List</h1>
+        <h2>React</h2>
+      </div>
 
-### Making a Progressive Web App
+      <div className="mainContainer">
+        제 목
+        <input
+          name="title"
+          onChange={contentChangeHandler}
+          className="titleBox"
+          value={title}
+        ></input>
+        내 용
+        <input
+          name="todo"
+          onChange={contentChangeHandler}
+          className="titleBox"
+          value={todo}
+        ></input>
+        <button onClick={buttonForAdd} className="buttonForAdd btnFirst">
+          추가하기
+        </button>
+      </div>
+      <div className="listTitle">Working Zone</div>
+      <div className="con_list">
+        {content
+          .filter((item) => !item.isDone)
+          .map((item) => {
+            return (
+              <div className="con_todo" key={item.id}>
+                <h2>{item.title}</h2>
+                <p>{item.todo}</p>
+                <div className="button-Set">
+                  <button
+                    onClick={() => buttonForComplete(item.id)}
+                    className="buttonForComplete btnFirst"
+                  >
+                    완료하기
+                  </button>
+                  <button
+                    onClick={() => buttonForRemove(item.id)}
+                    className="btnRemove btnFirst"
+                  >
+                    삭제하기
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+      </div>
+      <div className="listTitle">Done Zone</div>
+      <div className="con_list">
+        {content
+          .filter((item) => item.isDone)
+          .map((item) => {
+            return (
+              <div className="con_todo">
+                <h2>{item.title}</h2>
+                <p>{item.todo}</p>
+                <div className="button-Set">
+                  <button
+                    onClick={() => buttonForCancel(item.id)}
+                    className="buttonForCancle btnFirst"
+                  >
+                    취소하기
+                  </button>
+                  <button
+                    onClick={() => buttonForRemove(item.id)}
+                    className="btnRemove btnFirst "
+                  >
+                    삭제하기
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+      </div>
+    </div>
+  );
+};
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+export default App;
